@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+if [ "$(whoami)" != 'root' ]; then
+  echo
+  echo 'script must be ran as root'
+  echo
+fi
+
+dist='arch'
+install='pacman -S'
+
+install () {
+  "$($install $1)"
+}
+
+# install xorg-server
+# many of the fixes below depend on xorg-server
+
+install 'xorg-server xorg-xinit'
+
+# enhance trackpad experience
+install 'xf86-input-synaptics'
+
+echo 'Section "InputClass"
+        Identifier "touchpad"
+        Driver "synaptics"
+        MatchIsTouchpad "on"
+        Option "FingerHigh" "5"
+        Option "FingerLow" "5"
+        Option "TapButton1" "1"
+        Option "TapButton2" "3"
+        Option "TapButton3" "2"
+        Option "HorizTwoFingerScroll" "on"
+        Option "VertTwoFingerScroll" "on"
+EndSection' > /etc/X11/xorg.conf.d/70-synaptics.conf
+
+# get sound going with alsa
+install 'alsa-utils'
+# possible solution for alsa config
+cat alsa.conf > /var/lib/alsa/asound.state
+
+#remap keyboard keys
+# change search key to caps lock key
+install 'xorg-xmodmap'
+
+
